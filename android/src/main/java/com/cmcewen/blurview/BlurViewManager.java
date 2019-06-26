@@ -1,11 +1,16 @@
 package com.cmcewen.blurview;
 
+import android.support.annotation.NonNull;
 import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebView;
 
-import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class BlurViewManager extends SimpleViewManager<BlurringView> {
@@ -48,14 +53,42 @@ public class BlurViewManager extends SimpleViewManager<BlurringView> {
         view.setDownsampleFactor(factor);
     }
 
+//    @ReactProp(name = "viewRef")
+//    public void setViewRef(BlurringView view, int viewRef) {
+//        if (context != null && context.getCurrentActivity() != null) {
+//          View viewToBlur = context.getCurrentActivity().findViewById(viewRef);
+//
+//          if (viewToBlur != null) {
+//              view.setBlurredView(viewToBlur);
+//          }
+//        }
+//    }
+
     @ReactProp(name = "viewRef")
     public void setViewRef(BlurringView view, int viewRef) {
         if (context != null && context.getCurrentActivity() != null) {
-          View viewToBlur = context.getCurrentActivity().findViewById(viewRef);
+            List<View> views = new ArrayList<>();
+            getAllViews(views, context.getCurrentActivity().getWindow().getDecorView());
 
-          if (viewToBlur != null) {
-              view.setBlurredView(viewToBlur);
-          }
+            View viewToBlur = null;
+            for (View childView : views) {
+                if (childView instanceof WebView) {
+                    viewToBlur = childView;
+                }
+            }
+
+            if (viewToBlur != null) {
+                view.setBlurredView(viewToBlur);
+            }
+        }
+    }
+
+    private static void getAllViews(@NonNull List<View> resultViews, @NonNull View parentView) {
+        resultViews.add(parentView);
+        if (parentView instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) parentView).getChildCount(); i++) {
+                getAllViews(resultViews, ((ViewGroup) parentView).getChildAt(i));
+            }
         }
     }
 }
