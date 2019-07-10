@@ -125,6 +125,10 @@ public class BlurringView extends View {
             int scaledWidth = width / mDownsampleFactor;
             int scaledHeight = height / mDownsampleFactor;
 
+            if (scaledWidth <= 0 || scaledHeight <= 0) {
+                return false;
+            }
+
             // This is no longer necessary on newer versions of RenderScript (23+)
             // -------------------------------------------------------------------
             // The following manipulation is to avoid some RenderScript artifacts at the edge.
